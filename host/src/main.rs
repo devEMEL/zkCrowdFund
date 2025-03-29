@@ -135,5 +135,7 @@ fn main() {
     verify_receipt
         .verify(GUEST_CODE_FOR_ZK_PROOF_ID)
         .unwrap();
+
+    println!("{:?}", proof_output); 
 }
 // RISC0_DEV_MODE=0 cargo run --release
