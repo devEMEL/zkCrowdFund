@@ -1,28 +1,15 @@
 
+
 use risc0_zkvm::guest::env;
-use serde::{Serialize, Deserialize};
 
-const MIN_DONATION_AMOUNT_CONSTANT: i64 =  50000000000000000;  // 0.05 × 10^18 wei = 5 × 10^16 wei, or 50,000,000,000,000,000 wei.
-
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-struct Campaign {
-    name: String,
-    description: String,
-    min_donation_amount: u64,
-}
+const MIN_DONATION_AMOUNT_CONSTANT: u64 = 50_000_000_000_000_000; // 0.05 ETH in wei
 
 fn main() {
-    // TODO: Implement your guest code here
-
-    // read the input
-    let name = env::read::<i64>();
-    let description = env::read::<i64>();
-    let min_donation_amount = env::read::<i64>();
-
-    // TODO: do something with the input
-
+    // Read the input
+    let min_donation_amount = env::read::<u64>();
+    // Check if donation meets the minimum amount
     let result = min_donation_amount >= MIN_DONATION_AMOUNT_CONSTANT;
 
-    // write public output to the journal
+    // Write public output to the journal
     env::commit(&result);
 }
