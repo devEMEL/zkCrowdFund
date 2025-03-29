@@ -1,25 +1,25 @@
+
+
 // use serde::{Serialize, Deserialize};
 // use methods::{
 //     GUEST_CODE_FOR_ZK_PROOF_ELF, GUEST_CODE_FOR_ZK_PROOF_ID
 // };
 // use risc0_zkvm::{default_prover, ExecutorEnv};
-// use std::fs; // Import the fs module
-// use std::io::Write;
 // use hex;
+// use bincode;
 
-// #[derive(Serialize, Deserialize)]
-// pub struct ProofOutput{
-//     pub proof: String,
-//     pub pub_inputs: String,
-//     pub image_id: String,
+// #[derive(Debug, Serialize, Deserialize)]
+// pub struct ProofResponse{
+//     pub result: bool,
+//     pub inner_hex: String,
+//     pub journal_hex: String,
+//     pub image_id_hex: String,
 // }
 
 // fn main() {
-//     // Initialize tracing. In order to view logs, run `RUST_LOG=info cargo run`
 //     tracing_subscriber::fmt()
 //         .with_env_filter(tracing_subscriber::filter::EnvFilter::from_default_env())
 //         .init();
-
 
 //     let min_donation_amount: u64 = 50_000_000_000_000_000;
 
@@ -29,56 +29,36 @@
 //         .build()
 //         .unwrap();
 
-//     // Obtain the default prover.
 //     let prover = default_prover();
+//     let receipt = prover.prove(env, GUEST_CODE_FOR_ZK_PROOF_ELF).unwrap();
+//     let verify_receipt = receipt.receipt;
 
-//     // Proof information by proving the specified ELF binary.
-//     // This struct contains the receipt along with statistics about execution of the guest
-//     let prove_info = prover
-//         .prove(env, GUEST_CODE_FOR_ZK_PROOF_ELF)
-//         .unwrap();
+//     let inner_hex = hex::encode(bincode::serialize(&verify_receipt.inner).unwrap());
+//     let journal_hex = hex::encode(bincode::serialize(&verify_receipt.journal).unwrap());
 
-//     // extract the receipt.
-//     let receipt = prove_info.receipt;
+//     let mut image_id_hex = String::new();
+//     for &value in GUEST_CODE_FOR_ZK_PROOF_ELF {
+//         image_id_hex.push_str(&format!("{:08x}", value.to_be()));
+//     }
 
-//     // TODO: Implement code for retrieving receipt journal here.
+//     let result: bool = verify_receipt.journal.decode().unwrap();
 
-//     // For example:
-//     let _output: u64 = receipt.journal.decode().unwrap();
+//     let proof_output = ProofResponse {
+//         result,
+//         inner_hex,
+//         journal_hex,
+//         image_id_hex,
+//     };
 
-//     // The receipt was verified at the end of proving, but the below code is an
-//     // example of how someone else could verify this receipt.
-//     receipt
+//     verify_receipt
 //         .verify(GUEST_CODE_FOR_ZK_PROOF_ID)
 //         .unwrap();
 
-
-//     let mut bin_receipt = Vec::new();
-//     ciborium::into_writer(&receipt, &mut bin_receipt).unwrap();
-//     let proof = hex::encode(&bin_receipt);
-
-//     fs::write("proof.txt", hex::encode(&bin_receipt)).unwrap();
-//     let receipt_journal_bytes_array = &receipt.journal.bytes.as_slice();
-//     let pub_inputs = hex::encode(&receipt_journal_bytes_array);
-    
-//     let image_id_hex = hex::encode(
-//         GUEST_CODE_FOR_ZK_PROOF_ID
-//             .into_iter()
-//             .flat_map(|v| v.to_le_bytes().into_iter())
-//             .collect::<Vec<_>>(),
-//     );
-    
-//     let proof_output = ProofOutput{
-//         proof: "0x".to_owned()+&proof,
-//         pub_inputs: "0x".to_owned()+&pub_inputs,
-//         image_id: "0x".to_owned()+&image_id_hex,
-//     };
-
-//     let proof_output_json = serde_json::to_string(&proof_output).unwrap();
-//     fs::write("proof.json", proof_output_json).unwrap();
+//     println!("{:?}", proof_output); 
 // }
-
 // // RISC0_DEV_MODE=0 cargo run --release
+
+
 
 
 
@@ -87,21 +67,22 @@ use methods::{
     GUEST_CODE_FOR_ZK_PROOF_ELF, GUEST_CODE_FOR_ZK_PROOF_ID
 };
 use risc0_zkvm::{default_prover, ExecutorEnv};
+use std::fs; // Import the fs module
 use hex;
-use bincode;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ProofResponse{
-    pub result: bool,
-    pub inner_hex: String,
-    pub journal_hex: String,
-    pub image_id_hex: String,
+pub struct ProofOutput{
+    pub proof: String,
+    pub pub_inputs: String,
+    pub image_id: String,
 }
 
 fn main() {
+    // Initialize tracing. In order to view logs, run `RUST_LOG=info cargo run`
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::filter::EnvFilter::from_default_env())
         .init();
+
 
     let min_donation_amount: u64 = 50_000_000_000_000_000;
 
@@ -111,31 +92,53 @@ fn main() {
         .build()
         .unwrap();
 
+    // Obtain the default prover.
     let prover = default_prover();
-    let receipt = prover.prove(env, GUEST_CODE_FOR_ZK_PROOF_ELF).unwrap();
-    let verify_receipt = receipt.receipt;
 
-    let inner_hex = hex::encode(bincode::serialize(&verify_receipt.inner).unwrap());
-    let journal_hex = hex::encode(bincode::serialize(&verify_receipt.journal).unwrap());
+    // Proof information by proving the specified ELF binary.
+    // This struct contains the receipt along with statistics about execution of the guest
+    let prove_info = prover
+        .prove(env, GUEST_CODE_FOR_ZK_PROOF_ELF)
+        .unwrap();
 
-    let mut image_id_hex = String::new();
-    for &value in GUEST_CODE_FOR_ZK_PROOF_ELF {
-        image_id_hex.push_str(&format!("{:08x}", value.to_be()));
-    }
+    // extract the receipt.
+    let receipt = prove_info.receipt;
 
-    let result: bool = verify_receipt.journal.decode().unwrap();
+    // TODO: Implement code for retrieving receipt journal here.
 
-    let proof_output = ProofResponse {
-        result,
-        inner_hex,
-        journal_hex,
-        image_id_hex,
-    };
+    // For example:
+    let _output: u64 = receipt.journal.decode().unwrap();
 
-    verify_receipt
+    // The receipt was verified at the end of proving, but the below code is an
+    // example of how someone else could verify this receipt.
+    receipt
         .verify(GUEST_CODE_FOR_ZK_PROOF_ID)
         .unwrap();
 
-    println!("{:?}", proof_output); 
+
+    let mut bin_receipt = Vec::new();
+    ciborium::into_writer(&receipt, &mut bin_receipt).unwrap();
+    let proof = hex::encode(&bin_receipt);
+
+    fs::write("proof.txt", hex::encode(&bin_receipt)).unwrap();
+    let receipt_journal_bytes_array = &receipt.journal.bytes.as_slice();
+    let pub_inputs = hex::encode(&receipt_journal_bytes_array);
+    
+    let image_id_hex = hex::encode(
+        GUEST_CODE_FOR_ZK_PROOF_ID
+            .into_iter()
+            .flat_map(|v| v.to_le_bytes().into_iter())
+            .collect::<Vec<_>>(),
+    );
+    
+    let proof_output = ProofOutput{
+        proof: "0x".to_owned()+&proof,
+        pub_inputs: "0x".to_owned()+&pub_inputs,
+        image_id: "0x".to_owned()+&image_id_hex,
+    };
+
+    let proof_output_json = serde_json::to_string(&proof_output).unwrap();
+    fs::write("proof.json", proof_output_json).unwrap();
+
 }
-// RISC0_DEV_MODE=0 cargo run --release
+
