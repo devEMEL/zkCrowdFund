@@ -107,7 +107,7 @@ fn main() {
     // TODO: Implement code for retrieving receipt journal here.
 
     // For example:
-    let _output: u64 = receipt.journal.decode().unwrap();
+    let _output: bool = receipt.journal.decode().unwrap();
 
     // The receipt was verified at the end of proving, but the below code is an
     // example of how someone else could verify this receipt.
