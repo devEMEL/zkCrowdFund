@@ -13,3 +13,4 @@ fn main() {
     // Write public output to the journal
     env::commit(&result);
 }
+
