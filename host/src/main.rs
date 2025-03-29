@@ -3,7 +3,9 @@ use methods::{
     GUEST_CODE_FOR_ZK_PROOF_ELF, GUEST_CODE_FOR_ZK_PROOF_ID
 };
 use risc0_zkvm::{default_prover, ExecutorEnv};
-
+use std::fs; // Import the fs module
+use std::io::Write;
+use hex;
 
 #[derive(Serialize, Deserialize)]
 pub struct ProofOutput{
