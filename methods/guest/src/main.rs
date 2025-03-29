@@ -6,7 +6,7 @@ const MIN_DONATION_AMOUNT_CONSTANT: u64 = 50_000_000_000_000_000; // 0.05 ETH in
 
 fn main() {
     // Read the input
-    let min_donation_amount = env::read::<u64>();
+    let min_donation_amount: u64 = env::read();
     // Check if donation meets the minimum amount
     let result = min_donation_amount >= MIN_DONATION_AMOUNT_CONSTANT;
 

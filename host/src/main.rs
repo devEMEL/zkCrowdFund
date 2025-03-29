@@ -1,5 +1,5 @@
 
-
+// bincode = "1.3.3"
 // use serde::{Serialize, Deserialize};
 // use methods::{
 //     GUEST_CODE_FOR_ZK_PROOF_ELF, GUEST_CODE_FOR_ZK_PROOF_ID
@@ -144,3 +144,9 @@ fn main() {
 
 
 
+// let input: u32 = 15 * u32::pow(2, 27) + 1;
+// let env = ExecutorEnv::builder()
+//     .write(&input)
+//     .unwrap()
+//     .build()
+//     .unwrap();
