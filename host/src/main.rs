@@ -87,9 +87,8 @@ use methods::{
     GUEST_CODE_FOR_ZK_PROOF_ELF, GUEST_CODE_FOR_ZK_PROOF_ID
 };
 use risc0_zkvm::{default_prover, ExecutorEnv};
-use std::fs; // Import the fs module
-use std::io::Write;
 use hex;
+use bincode;
 
 #[derive(Serialize, Deserialize)]
 pub struct ProofResponse{
@@ -100,11 +99,9 @@ pub struct ProofResponse{
 }
 
 fn main() {
-    // Initialize tracing. In order to view logs, run `RUST_LOG=info cargo run`
     tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::filter::EnvFilter::from_default_env())
         .init();
-
 
     let min_donation_amount: u64 = 50_000_000_000_000_000;
 
@@ -114,34 +111,19 @@ fn main() {
         .build()
         .unwrap();
 
-    // Obtain the default prover.
     let prover = default_prover();
-
-
-    // let prove_info = prover
-    //     .prove(env, GUEST_CODE_FOR_ZK_PROOF_ELF)
-    //     .unwrap();
-
-    // extract the receipt.
-    let receipt = prover.prove(env, GUEST_CODE_FOR_ZK_PROOF_ELF).unwrap();;
+    let receipt = prover.prove(env, GUEST_CODE_FOR_ZK_PROOF_ELF).unwrap();
     let verify_receipt = receipt.receipt;
 
+    let inner_hex = hex::encode(bincode::serialize(&receipt.receipt.inner).unwrap());
+    let journal_hex = hex::encode(bincode::serialize(&receipt.receipt.journal).unwrap());
 
-
-    let inner_hex = hex::encode(bincode::serialize(&receipt.inner).unwrap()); //TODO: remove hex::encode() wrap. check example
-    println!("Proof inner hex: {}", inner_hex);
-
-    // Public inputs
-    let journal_hex = hex::encode(bincode::serialize(&receipt.journal).unwrap()); //TODO: remove hex::encode() wrap. check example
-
-    // vk
     let mut image_id_hex = String::new();
-    for &value in &GUEST_CODE_FOR_ZK_PROOF_ELF {
+    for &value in GUEST_CODE_FOR_ZK_PROOF_ELF {
         image_id_hex.push_str(&format!("{:08x}", value.to_be()));
     }
-    
 
-    let result: bool = receipt.journal.decode().unwrap();
+    let result: bool = receipt.receipt.journal.decode().unwrap();
 
     let proof_output = ProofResponse {
         result,
@@ -150,12 +132,8 @@ fn main() {
         image_id_hex,
     };
 
-
     verify_receipt
         .verify(GUEST_CODE_FOR_ZK_PROOF_ID)
         .unwrap();
-
-
 }
-
 // RISC0_DEV_MODE=0 cargo run --release
