@@ -143,10 +143,3 @@ fn main() {
 }
 
 
-
-// let input: u32 = 15 * u32::pow(2, 27) + 1;
-// let env = ExecutorEnv::builder()
-//     .write(&input)
-//     .unwrap()
-//     .build()
-//     .unwrap();
