@@ -90,7 +90,7 @@ use risc0_zkvm::{default_prover, ExecutorEnv};
 use hex;
 use bincode;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ProofResponse{
     pub result: bool,
     pub inner_hex: String,
