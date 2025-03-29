@@ -115,15 +115,15 @@ fn main() {
     let receipt = prover.prove(env, GUEST_CODE_FOR_ZK_PROOF_ELF).unwrap();
     let verify_receipt = receipt.receipt;
 
-    let inner_hex = hex::encode(bincode::serialize(&receipt.receipt.inner).unwrap());
-    let journal_hex = hex::encode(bincode::serialize(&receipt.receipt.journal).unwrap());
+    let inner_hex = hex::encode(bincode::serialize(&verify_receipt.inner).unwrap());
+    let journal_hex = hex::encode(bincode::serialize(&verify_receipt.journal).unwrap());
 
     let mut image_id_hex = String::new();
     for &value in GUEST_CODE_FOR_ZK_PROOF_ELF {
         image_id_hex.push_str(&format!("{:08x}", value.to_be()));
     }
 
-    let result: bool = receipt.receipt.journal.decode().unwrap();
+    let result: bool = verify_receipt.journal.decode().unwrap();
 
     let proof_output = ProofResponse {
         result,
